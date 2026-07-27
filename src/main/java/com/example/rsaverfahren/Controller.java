@@ -9,30 +9,60 @@ public class Controller {
     @FXML private Slider sliderP, sliderQ;
     @FXML private Label labelP, labelQ;
 
+
+    /**
+     * Startfunktion
+     */
     @FXML private void initialize() {
         int maxPrimePossible = 1000;
         int[] primes = primeGenerator(maxPrimePossible);
+
+        if (sliderP.getValue() == sliderQ.getValue()) {
+            sliderQ.setValue(1);
+        }
+
         mapPrimesOnSlider(primes, sliderP, labelP);
         mapPrimesOnSlider(primes, sliderQ, labelQ);
         sliderP.valueProperty().addListener((obs, o, n) -> mapPrimesOnSlider(primes, sliderP, labelP));
         sliderQ.valueProperty().addListener((obs, o, n) -> mapPrimesOnSlider(primes, sliderQ, labelQ));
     }
 
+    /**
+     * Mappt die Primzahlen des Arrays int[] primes auf den Slider und zeigt den aktuellen Wert des Sliders als Label an.
+     * @param primes Primzahlarray
+     * @param slider zu mappender Slider
+     * @param label Anzeigelabel
+     */
     @FXML private void mapPrimesOnSlider(int[] primes, Slider slider, Label label) {
-
-        int p = primes[(int) Math.round(slider.getValue())];
-
         slider.setMin(0);
         slider.setMax(primes.length -1);
-        slider.setSnapToTicks(true);
         slider.setMinorTickCount(0);
         slider.setBlockIncrement(1);
         slider.setShowTickLabels(false);
         slider.setShowTickMarks(false);
 
+        Slider otherSlider = (slider == sliderP) ? sliderQ : sliderP;
+
+        int currentIndex = (int) Math.round(slider.getValue());
+        int otherIndex = (int) Math.round(otherSlider.getValue());
+
+        if (currentIndex == otherIndex) {
+            if (currentIndex + 1 < primes.length) {
+                currentIndex++;
+            } else {
+                currentIndex--;
+            }
+            slider.setValue(currentIndex);
+        }
+
+        int p = primes[(int) Math.round(slider.getValue())];
         label.setText(""+p);
     }
 
+    /** Siebt alle Primzahlen einer Zahlenreihe bis zum Parameter max heraus.
+     * @param max Maximaler Wert einer möglichen Primzahl
+     * @return Array aller Primzahlen bis max
+     */
     static int[] primeGenerator(int max) {
         boolean[] composite = new boolean[max + 1];
         int count = 0;
