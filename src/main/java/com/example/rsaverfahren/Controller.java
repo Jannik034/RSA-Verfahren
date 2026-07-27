@@ -7,12 +7,9 @@ import javafx.scene.control.*;
 public class Controller {
 
     @FXML private Slider sliderP, sliderQ;
-    @FXML private Label labelP, labelQ;
+    @FXML private Label labelP, labelQ, labelN;
 
 
-    /**
-     * Startfunktion
-     */
     @FXML private void initialize() {
         int maxPrimePossible = 1000;
         int[] primes = primeGenerator(maxPrimePossible);
@@ -23,8 +20,9 @@ public class Controller {
 
         mapPrimesOnSlider(primes, sliderP, labelP);
         mapPrimesOnSlider(primes, sliderQ, labelQ);
-        sliderP.valueProperty().addListener((obs, o, n) -> mapPrimesOnSlider(primes, sliderP, labelP));
-        sliderQ.valueProperty().addListener((obs, o, n) -> mapPrimesOnSlider(primes, sliderQ, labelQ));
+        calcN(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelN);
+        sliderP.valueProperty().addListener((obs, o, n) -> {mapPrimesOnSlider(primes, sliderP, labelP); calcN(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelN);});
+        sliderQ.valueProperty().addListener((obs, o, n) -> {mapPrimesOnSlider(primes, sliderQ, labelQ); calcN(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelN);});
     }
 
     /**
@@ -57,6 +55,15 @@ public class Controller {
 
         int p = primes[(int) Math.round(slider.getValue())];
         label.setText(""+p);
+    }
+
+    /** Errechnet den Wert N aus q und p. Zeigt N dann als Label an.
+     * @param p Primzahl
+     * @param q Primzahl
+     * @param label Ausgabelabel
+     */
+    @FXML private void calcN(int p, int q, Label label) {
+        label.setText("N =" + (p*q));
     }
 
     /** Siebt alle Primzahlen einer Zahlenreihe bis zum Parameter max heraus.

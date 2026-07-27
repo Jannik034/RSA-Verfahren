@@ -12,15 +12,19 @@
             <BorderPane>
                 <top>
                     <HBox spacing="24" style="-fx-padding: 8;">
-                        <VBox spacing="4">
-                            <Label fx:id="labelP"/>
-                            <Slider fx:id="sliderP" showTickLabels="true" showTickMarks="true"/>
-                        </VBox>
-
-                        <VBox spacing="4">
-                            <Label fx:id="labelQ"/>
-                            <Slider fx:id="sliderQ" showTickLabels="true" showTickMarks="true"/>
-                        </VBox>
+                        <HBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <VBox spacing="4" >
+                                <Label fx:id="labelP"/>
+                                <Slider fx:id="sliderP"/>
+                            </VBox>
+                            <VBox spacing="4">
+                                <Label fx:id="labelQ"/>
+                                <Slider fx:id="sliderQ"/>
+                            </VBox>
+                        </HBox>
+                        <HBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <Label fx:id="labelN" text="N ="/>
+                        </HBox>
                     </HBox>
                 </top>
                 <center>
