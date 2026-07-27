@@ -5,9 +5,36 @@
 <?import javafx.scene.layout.*?>
 
 
+<VBox alignment="TOP_CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.rsaverfahren.Controller">
+    <TabPane tabClosingPolicy="UNAVAILABLE">
+        <Tab text="Verschlüsseln">
+            <BorderPane>
+                <top>
+                    <HBox spacing="24" style="-fx-padding: 8;">
+                        <VBox spacing="4">
+                            <Label fx:id="labelP"/>
+                            <Slider fx:id="sliderP" showTickLabels="true" showTickMarks="true"/>
+                        </VBox>
 
-<VBox alignment="TOP_CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.rsaverfahren.Controller">
-    <children>
-        <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE"/>
-    </children>
+                        <VBox spacing="4">
+                            <Label fx:id="labelQ"/>
+                            <Slider fx:id="sliderQ" showTickLabels="true" showTickMarks="true"/>
+                        </VBox>
+                    </HBox>
+                </top>
+                <center>
+                    <HBox>
+
+                    </HBox>
+                </center>
+            </BorderPane>
+        </Tab>
+        <Tab text="Entschlüsseln">
+            <Label text = "Entschlüsseln"/>
+        </Tab>
+        <Tab text="Bruteforce-Attacke">
+            <Label text = "Brute Force Attacke"/>
+        </Tab>
+    </TabPane>
 </VBox>
