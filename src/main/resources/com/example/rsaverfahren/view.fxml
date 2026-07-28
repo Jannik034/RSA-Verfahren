@@ -36,6 +36,14 @@
                                 </HBox>
                             </HBox>
                         </VBox>
+                        <VBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <Label text = "privater Schlüssel" style="-fx-padding: 3;"/>
+                            <HBox>
+                                <HBox style="-fx-padding: 8;">
+                                    <Label fx:id="labelD" text="d ="/>
+                                </HBox>
+                            </HBox>
+                        </VBox>
                     </HBox>
                 </top>
                 <center>

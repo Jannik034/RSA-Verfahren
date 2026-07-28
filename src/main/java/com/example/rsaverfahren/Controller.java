@@ -9,11 +9,11 @@ import java.util.Arrays;
 public class Controller {
 
     @FXML private Slider sliderP, sliderQ;
-    @FXML private Label labelP, labelQ, labelN, labelE;
+    @FXML private Label labelP, labelQ, labelN, labelE, labelD;
     private boolean isUpdating = false;
 
     @FXML private void initialize() {
-        int maxPrimePossible = 10000;
+        int maxPrimePossible = 1000;
         int[] primes = primeGenerator(maxPrimePossible);
 
         if (sliderP.getValue() == sliderQ.getValue()) {
@@ -22,23 +22,47 @@ public class Controller {
 
         mapPrimesOnSlider(primes, sliderP, labelP);
         mapPrimesOnSlider(primes, sliderQ, labelQ);
-        calcE(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelE);
-        calcN(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelN);
 
+        int p = primes[(int) Math.round(sliderP.getValue())];
+        int q = primes[(int) Math.round(sliderQ.getValue())];
 
-        sliderP.valueProperty().addListener((obs, o, n) -> {
-            if(isUpdating) return;
+        labelN.setText("N = "+ calcN(p, q));
+        labelE.setText("e = "+ calcE(p, q));
+        labelD.setText("d = "+ calcD(p, q, calcE(p, q)));
 
-            mapPrimesOnSlider(primes, sliderP, labelP);
-            calcN(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelN);
-            calcE(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelE);});
+        sliderP.valueProperty().addListener((obs, o, n) -> onSliderChanged(primes, sliderP, sliderQ));
+        sliderQ.valueProperty().addListener((obs, o, n) -> onSliderChanged(primes, sliderQ, sliderP));
+    }
 
-        sliderQ.valueProperty().addListener((obs, o, n) -> {
-            if(isUpdating) return;
+    /**
+     * Verarbeitet die Bewegung eines Sliders und verhindert eine Überlappung der beiden Primzahl-Slider
+     * @param primes Primzahlarray
+     * @param movedSlider der bewegte Slider
+     * @param otherSlider der jeweils andere Slider
+     */
+    @FXML void onSliderChanged(int[] primes, Slider movedSlider, Slider otherSlider) {
+        if (isUpdating) return;
 
-            mapPrimesOnSlider(primes, sliderQ, labelQ);
-            calcN(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelN);
-            calcE(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelE);});
+        int movedIdx = (int) Math.round(movedSlider.getValue());
+        int otherIdx = (int) Math.round(otherSlider.getValue());
+
+        if (movedIdx == otherIdx) {
+            isUpdating = true;
+            movedIdx = (movedIdx + 1 < primes.length) ? movedIdx + 1 : movedIdx - 1;
+            movedSlider.setValue(movedIdx);
+            isUpdating = false;
+        }
+
+        mapPrimesOnSlider(primes, sliderP, labelP);
+        mapPrimesOnSlider(primes, sliderQ, labelQ);
+
+        int p = primes[(int) Math.round(sliderP.getValue())];
+        int q = primes[(int) Math.round(sliderQ.getValue())];
+
+        int e = calcE(p, q);
+        labelN.setText("N = " + calcN(p, q));
+        labelE.setText("e = " + e);
+        labelD.setText("d = " + calcD(p, q, e));
     }
 
     /**
@@ -55,51 +79,57 @@ public class Controller {
         slider.setShowTickLabels(false);
         slider.setShowTickMarks(false);
 
-        Slider otherSlider = (slider == sliderP) ? sliderQ : sliderP;
+        int index = (int) Math.round(slider.getValue());
+        int prime = primes[index];
 
-        int currentIndex = (int) Math.round(slider.getValue());
-        int otherIndex = (int) Math.round(otherSlider.getValue());
-
-        if (currentIndex == otherIndex) {
-            if (currentIndex + 1 < primes.length) {
-                currentIndex++;
-            } else {
-                currentIndex--;
-            }
-
-            isUpdating = true;
-            slider.setValue(currentIndex);
-            isUpdating = false;
+        if(slider == sliderP) {
+            label.setText("p = "+ prime);
+        }else{
+            label.setText("q = "+ prime);
         }
-
-        int p = primes[(int) Math.round(slider.getValue())];
-        label.setText(""+p);
     }
 
     /** Errechnet den Wert N aus q und p. Zeigt N dann als Label an.
      * @param p Primzahl
      * @param q Primzahl
-     * @param label Ausgabelabel
+     * @return N, Produkt aus q und p
      */
-    @FXML private void calcN(int p, int q, Label label) {
-        label.setText("N =" + (p*q));
+    @FXML private int calcN(int p, int q) {
+        return p*q;
     }
 
     /**
-     * Errechnet das kleinste e für das ggT(e, (p-1)*(q-1)) == 1; e also zu (q-1)*(p-1) teilerfremd ist.
+     * Errechnet das kleinste e für das ggT(e, (p-1)*(q-1)) == 1 gilt; e also zu (q-1)*(p-1) teilerfremd ist.
      * @param p Primzahl
      * @param q Primzahl
-     * @param label Anzeigelabel
+     * @return e
      */
-    @FXML private void calcE(int p, int q, Label label) {
+    @FXML private int calcE(int p, int q) {
         int phi = (p-1) * (q-1);
         int e = 3;
 
         while (ggT(e,phi) != 1) {
             e += 2;
         }
+        return e;
+    }
 
-        label.setText("e = " + e);
+    /**
+     * Berechnet den privaten Exponenten d für das RSA-Verfahren aus den Primzahlen p und q sowie e
+     * @param p Primzahl
+     * @param q Primzahl
+     * @param e kleinstes e für das ggT(e, (p-1)*(q-1)) == 1 gilt.
+     * @return d
+     */
+    @FXML private int calcD(int p, int q, int e) {
+        int phi = (p-1)*(q-1);
+        int k = 1;
+
+        while ((k*phi+1) % e != 0) {
+            k++;
+        }
+
+        return (k*phi+1)/e;
     }
 
     /** Siebt alle Primzahlen einer Zahlenreihe bis zum Parameter max heraus.
