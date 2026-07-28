@@ -3,15 +3,17 @@ package com.example.rsaverfahren;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.util.Arrays;
+
 
 public class Controller {
 
     @FXML private Slider sliderP, sliderQ;
-    @FXML private Label labelP, labelQ, labelN;
-
+    @FXML private Label labelP, labelQ, labelN, labelE;
+    private boolean isUpdating = false;
 
     @FXML private void initialize() {
-        int maxPrimePossible = 1000;
+        int maxPrimePossible = 10000;
         int[] primes = primeGenerator(maxPrimePossible);
 
         if (sliderP.getValue() == sliderQ.getValue()) {
@@ -20,9 +22,23 @@ public class Controller {
 
         mapPrimesOnSlider(primes, sliderP, labelP);
         mapPrimesOnSlider(primes, sliderQ, labelQ);
+        calcE(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelE);
         calcN(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelN);
-        sliderP.valueProperty().addListener((obs, o, n) -> {mapPrimesOnSlider(primes, sliderP, labelP); calcN(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelN);});
-        sliderQ.valueProperty().addListener((obs, o, n) -> {mapPrimesOnSlider(primes, sliderQ, labelQ); calcN(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelN);});
+
+
+        sliderP.valueProperty().addListener((obs, o, n) -> {
+            if(isUpdating) return;
+
+            mapPrimesOnSlider(primes, sliderP, labelP);
+            calcN(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelN);
+            calcE(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelE);});
+
+        sliderQ.valueProperty().addListener((obs, o, n) -> {
+            if(isUpdating) return;
+
+            mapPrimesOnSlider(primes, sliderQ, labelQ);
+            calcN(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelN);
+            calcE(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())],labelE);});
     }
 
     /**
@@ -50,7 +66,10 @@ public class Controller {
             } else {
                 currentIndex--;
             }
+
+            isUpdating = true;
             slider.setValue(currentIndex);
+            isUpdating = false;
         }
 
         int p = primes[(int) Math.round(slider.getValue())];
@@ -64,6 +83,23 @@ public class Controller {
      */
     @FXML private void calcN(int p, int q, Label label) {
         label.setText("N =" + (p*q));
+    }
+
+    /**
+     * Errechnet das kleinste e für das ggT(e, (p-1)*(q-1)) == 1; e also zu (q-1)*(p-1) teilerfremd ist.
+     * @param p Primzahl
+     * @param q Primzahl
+     * @param label Anzeigelabel
+     */
+    @FXML private void calcE(int p, int q, Label label) {
+        int phi = (p-1) * (q-1);
+        int e = 3;
+
+        while (ggT(e,phi) != 1) {
+            e += 2;
+        }
+
+        label.setText("e = " + e);
     }
 
     /** Siebt alle Primzahlen einer Zahlenreihe bis zum Parameter max heraus.
@@ -92,5 +128,20 @@ public class Controller {
         }
 
         return primes;
+    }
+
+    /**
+     * Errechnet den ggT der Integer a und b nach dem Euklidischen Algorithmus
+     * @param a natürliche Zahl
+     * @param b natürliche Zahl
+     * @return ggT von a und b
+     */
+    static int ggT(int a, int b) {
+        while (b != 0) {
+                int temp = b;
+                b = a % b;
+                a = temp;
+        }
+        return a;
     }
 }

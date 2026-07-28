@@ -12,19 +12,30 @@
             <BorderPane>
                 <top>
                     <HBox spacing="24" style="-fx-padding: 8;">
-                        <HBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
-                            <VBox spacing="4" >
-                                <Label fx:id="labelP"/>
-                                <Slider fx:id="sliderP"/>
-                            </VBox>
-                            <VBox spacing="4">
-                                <Label fx:id="labelQ"/>
-                                <Slider fx:id="sliderQ"/>
-                            </VBox>
-                        </HBox>
-                        <HBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
-                            <Label fx:id="labelN" text="N ="/>
-                        </HBox>
+                        <VBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <Label text = "Voreinstellungen" style="-fx-padding: 3;"/>
+                            <HBox>
+                                <VBox spacing="4" >
+                                    <Label fx:id="labelP"/>
+                                    <Slider fx:id="sliderP"/>
+                                </VBox>
+                                <VBox spacing="4">
+                                    <Label fx:id="labelQ"/>
+                                    <Slider fx:id="sliderQ"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                        <VBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <Label text = "öffentlicher Schlüssel" style="-fx-padding: 3;"/>
+                            <HBox>
+                                <HBox style="-fx-padding: 8;">
+                                    <Label fx:id="labelN" text="N ="/>
+                                </HBox>
+                                <HBox style="-fx-padding: 8;">
+                                    <Label fx:id="labelE" text="e ="/>
+                                </HBox>
+                            </HBox>
+                        </VBox>
                     </HBox>
                 </top>
                 <center>
