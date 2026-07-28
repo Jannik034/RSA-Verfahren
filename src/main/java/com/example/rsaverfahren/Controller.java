@@ -3,18 +3,22 @@ package com.example.rsaverfahren;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.util.Arrays;
+import java.math.BigInteger;
 
 
 public class Controller {
 
     @FXML private Slider sliderP, sliderQ;
     @FXML private Label labelP, labelQ, labelN, labelE, labelD;
+    @FXML private TextField inputMessage, outputMessage;
+    @FXML private Button encryptBtn;
     private boolean isUpdating = false;
 
     @FXML private void initialize() {
         int maxPrimePossible = 1000;
         int[] primes = primeGenerator(maxPrimePossible);
+
+        inputMessage.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d*") ? change : null));
 
         if (sliderP.getValue() == sliderQ.getValue()) {
             sliderQ.setValue(1);
@@ -32,6 +36,28 @@ public class Controller {
 
         sliderP.valueProperty().addListener((obs, o, n) -> onSliderChanged(primes, sliderP, sliderQ));
         sliderQ.valueProperty().addListener((obs, o, n) -> onSliderChanged(primes, sliderQ, sliderP));
+        encryptBtn.setOnAction(event -> {
+            String text = inputMessage.getText();
+            if (text != null && !text.isEmpty()) {
+                int currentP = primes[(int) Math.round(sliderP.getValue())];
+                int currentQ = primes[(int) Math.round(sliderQ.getValue())];
+                int currentN = calcN(currentP, currentQ);
+                int currentE = calcE(currentP, currentQ);
+
+                try {
+                    int plaintext = Integer.parseInt(text);
+                    if (plaintext < currentN) {
+                        outputMessage.setText("" + encrypt(plaintext, currentE, currentN));
+                    } else {
+                        outputMessage.setText("Eingabe muss kleiner als N sein!");
+                    }
+                } catch (NumberFormatException ex) {
+                    outputMessage.setText("");
+                }
+            } else {
+                outputMessage.setText("");
+            }
+        });
     }
 
     /**
@@ -58,11 +84,16 @@ public class Controller {
 
         int p = primes[(int) Math.round(sliderP.getValue())];
         int q = primes[(int) Math.round(sliderQ.getValue())];
-
         int e = calcE(p, q);
+
         labelN.setText("N = " + calcN(p, q));
         labelE.setText("e = " + e);
         labelD.setText("d = " + calcD(p, q, e));
+    }
+
+    @FXML private int encrypt(int plaintext, int e, int N) {
+
+        return BigInteger.valueOf(plaintext).modPow(BigInteger.valueOf(e), BigInteger.valueOf(N)).intValue();
     }
 
     /**

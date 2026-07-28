@@ -20,6 +20,7 @@ public class Application extends javafx.application.Application {
 
         stage.setWidth(960);
         stage.setHeight(540);
+        stage.setResizable(false);
         stage.setTitle("RSA-Verfahren");
         stage.setScene(scene);
         stage.show();
