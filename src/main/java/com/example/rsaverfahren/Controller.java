@@ -3,14 +3,15 @@ package com.example.rsaverfahren;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.math.BigInteger;
-
 
 public class Controller {
 
     @FXML private Slider sliderP, sliderQ;
-    @FXML private Label labelP, labelQ, labelN, labelE, labelD;
-    @FXML private TextField inputMessage, outputMessage;
+    @FXML private Label labelP, labelQ;
+    @FXML private Label labelNSettings, labelNEncrypt, labelNDecrypt;
+    @FXML private Label labelDSettings, labelDDecrypt;
+    @FXML private Label labelESettings, labelEEncrypt;
+    @FXML private TextField inputMessageEncrypt, outputMessageEncrypt;
     @FXML private Button encryptBtn;
     private boolean isUpdating = false;
 
@@ -18,7 +19,7 @@ public class Controller {
         int maxPrimePossible = 1000;
         int[] primes = primeGenerator(maxPrimePossible);
 
-        inputMessage.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d*") ? change : null));
+        inputMessageEncrypt.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d*") ? change : null));
 
         if (sliderP.getValue() == sliderQ.getValue()) {
             sliderQ.setValue(1);
@@ -30,14 +31,19 @@ public class Controller {
         int p = primes[(int) Math.round(sliderP.getValue())];
         int q = primes[(int) Math.round(sliderQ.getValue())];
 
-        labelN.setText("N = "+ calcN(p, q));
-        labelE.setText("e = "+ calcE(p, q));
-        labelD.setText("d = "+ calcD(p, q, calcE(p, q)));
+        labelDDecrypt.textProperty().bind(labelDSettings.textProperty());
+        labelEEncrypt.textProperty().bind(labelESettings.textProperty());
+        labelNDecrypt.textProperty().bind(labelNSettings.textProperty());
+        labelNEncrypt.textProperty().bind(labelNSettings.textProperty());
+
+        labelNSettings.setText("N = "+ calcN(p, q));
+        labelESettings.setText("e = "+ calcE(p, q));
+        labelDSettings.setText("d = "+ calcD(p, q, calcE(p, q)));
 
         sliderP.valueProperty().addListener((obs, o, n) -> onSliderChanged(primes, sliderP, sliderQ));
         sliderQ.valueProperty().addListener((obs, o, n) -> onSliderChanged(primes, sliderQ, sliderP));
         encryptBtn.setOnAction(event -> {
-            String text = inputMessage.getText();
+            String text = inputMessageEncrypt.getText();
             if (text != null && !text.isEmpty()) {
                 int currentP = primes[(int) Math.round(sliderP.getValue())];
                 int currentQ = primes[(int) Math.round(sliderQ.getValue())];
@@ -47,15 +53,15 @@ public class Controller {
                 try {
                     int plaintext = Integer.parseInt(text);
                     if (plaintext < currentN) {
-                        outputMessage.setText("" + encrypt(plaintext, currentE, currentN));
+                        outputMessageEncrypt.setText("" + encrypt(plaintext, currentE, currentN));
                     } else {
-                        outputMessage.setText("Eingabe muss kleiner als N sein!");
+                        outputMessageEncrypt.setText("Eingabe muss kleiner als N sein!");
                     }
                 } catch (NumberFormatException ex) {
-                    outputMessage.setText("");
+                    outputMessageEncrypt.setText("");
                 }
             } else {
-                outputMessage.setText("");
+                outputMessageEncrypt.setText("");
             }
         });
     }
@@ -86,14 +92,14 @@ public class Controller {
         int q = primes[(int) Math.round(sliderQ.getValue())];
         int e = calcE(p, q);
 
-        labelN.setText("N = " + calcN(p, q));
-        labelE.setText("e = " + e);
-        labelD.setText("d = " + calcD(p, q, e));
+        labelNSettings.setText("N = "+ calcN(p, q));
+        labelESettings.setText("e = "+ calcE(p, q));
+        labelDSettings.setText("d = "+ calcD(p, q, calcE(p, q)));
     }
 
     @FXML private int encrypt(int plaintext, int e, int N) {
 
-        return BigInteger.valueOf(plaintext).modPow(BigInteger.valueOf(e), BigInteger.valueOf(N)).intValue();
+        return (int) (Math.pow(plaintext,e) % N);
     }
 
     /**

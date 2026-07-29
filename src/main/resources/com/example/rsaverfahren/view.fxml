@@ -8,7 +8,7 @@
 <VBox alignment="TOP_CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.example.rsaverfahren.Controller">
     <TabPane tabClosingPolicy="UNAVAILABLE">
-        <Tab text="Verschlüsseln">
+        <Tab text = "Voreinstellungen">
             <BorderPane>
                 <top>
                     <HBox alignment="CENTER_LEFT" style="-fx-padding: 12;" spacing="12">
@@ -26,22 +26,44 @@
                             </HBox>
                         </VBox>
                         <VBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <Label text = "RSA-Modul" style="-fx-padding: 3;"/>
+                            <HBox style="-fx-padding: 8;">
+                                <Label fx:id="labelNSettings" text="N ="/>
+                            </HBox>
+                        </VBox>
+                        <VBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
                             <Label text = "öffentlicher Schlüssel" style="-fx-padding: 3;"/>
-                            <HBox>
-                                <HBox style="-fx-padding: 8;">
-                                    <Label fx:id="labelN" text="N ="/>
-                                </HBox>
-                                <HBox style="-fx-padding: 8;">
-                                    <Label fx:id="labelE" text="e ="/>
-                                </HBox>
+                            <HBox style="-fx-padding: 8;">
+                                <Label fx:id="labelESettings" text="e ="/>
                             </HBox>
                         </VBox>
                         <VBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
                             <Label text = "privater Schlüssel" style="-fx-padding: 3;"/>
                             <HBox>
                                 <HBox style="-fx-padding: 8;">
-                                    <Label fx:id="labelD" text="d ="/>
+                                    <Label fx:id="labelDSettings" text="d ="/>
                                 </HBox>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                </top>
+            </BorderPane>
+        </Tab>
+        <Tab text="Verschlüsseln">
+            <BorderPane>
+                <top>
+                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 12;" spacing="12">
+
+                        <VBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <Label text = "RSA-Modul" style="-fx-padding: 3;"/>
+                            <HBox style="-fx-padding: 8;">
+                                <Label fx:id="labelNEncrypt" text="N ="/>
+                            </HBox>
+                        </VBox>
+                        <VBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <Label text = "öffentlicher Schlüssel" style="-fx-padding: 3;"/>
+                            <HBox style="-fx-padding: 8;">
+                                <Label fx:id="labelEEncrypt" text="e ="/>
                             </HBox>
                         </VBox>
                         <Button text = "Verschlüsseln" fx:id="encryptBtn" />
@@ -49,14 +71,14 @@
                 </top>
                 <center>
                     <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 40;">
-                        <TextField fx:id="inputMessage"
+                        <TextField fx:id="inputMessageEncrypt"
                                    promptText="Klartext eingeben..."
                                    maxWidth="1000"
                                    prefWidth="400"
                                    prefHeight="400"
                                    style="-fx-font-size: 16px; -fx-padding: 8 12; -fx-alignment: center;" />
 
-                        <TextField fx:id="outputMessage"
+                        <TextField fx:id="outputMessageEncrypt"
                                    promptText="Verschlüsselter Text..."
                                    editable="false"
                                    maxWidth="1000"
@@ -68,7 +90,45 @@
             </BorderPane>
         </Tab>
         <Tab text="Entschlüsseln">
-            <Label text = "Entschlüsseln"/>
+            <BorderPane>
+                <top>
+                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 12;" spacing="12">
+                        <VBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <Label text = "RSA-Modul" style="-fx-padding: 3;"/>
+                            <HBox style="-fx-padding: 8;">
+                                <Label fx:id="labelNDecrypt" text="N ="/>
+                            </HBox>
+                        </VBox>
+                        <VBox style="-fx-border-color: #bfbfbf; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <Label text = "privater Schlüssel" style="-fx-padding: 3;"/>
+                            <HBox>
+                                <HBox style="-fx-padding: 8;">
+                                    <Label fx:id = "labelDDecrypt" text="d ="/>
+                                </HBox>
+                            </HBox>
+                        </VBox>
+                        <Button text = "Entschlüsseln" fx:id="decryptBtn" />
+                    </HBox>
+                </top>
+                <center>
+                    <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 40;">
+                        <TextField fx:id="inputMessageDecrypt"
+                                   promptText="Klartext eingeben..."
+                                   maxWidth="1000"
+                                   prefWidth="400"
+                                   prefHeight="400"
+                                   style="-fx-font-size: 16px; -fx-padding: 8 12; -fx-alignment: center;" />
+
+                        <TextField fx:id="outputMessageDecrypt"
+                                   promptText="Verschlüsselter Text..."
+                                   editable="false"
+                                   maxWidth="1000"
+                                   prefWidth="400"
+                                   prefHeight="400"
+                                   style="-fx-font-size: 16px; -fx-padding: 8 12; -fx-alignment: center;" />
+                    </HBox>
+                </center>
+            </BorderPane>
         </Tab>
         <Tab text="Bruteforce-Attacke">
             <Label text = "Brute Force Attacke"/>
