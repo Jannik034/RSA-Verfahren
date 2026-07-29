@@ -1,8 +1,6 @@
 package com.example.rsaverfahren;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-
 
 public class Controller {
 
@@ -11,13 +9,13 @@ public class Controller {
     @FXML private Label labelNSettings, labelNEncrypt, labelNDecrypt;
     @FXML private Label labelDSettings, labelDDecrypt;
     @FXML private Label labelESettings, labelEEncrypt;
-    @FXML private TextField inputMessageEncrypt, outputMessageEncrypt;
-    @FXML private Button encryptBtn;
+    @FXML private TextField inputMessageEncrypt, outputMessageEncrypt, inputMessageDecrypt, outputMessageDecrypt;
+    @FXML private Button encryptBtn, decryptBtn;
     private boolean isUpdating = false;
 
     @FXML private void initialize() {
         int maxPrimePossible = 1000;
-        int[] primes = primeGenerator(maxPrimePossible);
+        int[] primes = RSAService.primeGenerator(maxPrimePossible);
 
         inputMessageEncrypt.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d*") ? change : null));
 
@@ -25,35 +23,34 @@ public class Controller {
             sliderQ.setValue(1);
         }
 
-        mapPrimesOnSlider(primes, sliderP, labelP);
-        mapPrimesOnSlider(primes, sliderQ, labelQ);
-
-        int p = primes[(int) Math.round(sliderP.getValue())];
-        int q = primes[(int) Math.round(sliderQ.getValue())];
+        updateSliders(primes, sliderP, labelP);
+        updateSliders(primes, sliderQ, labelQ);
 
         labelDDecrypt.textProperty().bind(labelDSettings.textProperty());
         labelEEncrypt.textProperty().bind(labelESettings.textProperty());
         labelNDecrypt.textProperty().bind(labelNSettings.textProperty());
         labelNEncrypt.textProperty().bind(labelNSettings.textProperty());
 
-        labelNSettings.setText("N = "+ calcN(p, q));
-        labelESettings.setText("e = "+ calcE(p, q));
-        labelDSettings.setText("d = "+ calcD(p, q, calcE(p, q)));
-
+        updateLabels(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())]);
         sliderP.valueProperty().addListener((obs, o, n) -> onSliderChanged(primes, sliderP, sliderQ));
         sliderQ.valueProperty().addListener((obs, o, n) -> onSliderChanged(primes, sliderQ, sliderP));
+
+        handleCryption(primes);
+    }
+
+    @FXML private void handleCryption(int[] primes) {
         encryptBtn.setOnAction(event -> {
             String text = inputMessageEncrypt.getText();
             if (text != null && !text.isEmpty()) {
                 int currentP = primes[(int) Math.round(sliderP.getValue())];
                 int currentQ = primes[(int) Math.round(sliderQ.getValue())];
-                int currentN = calcN(currentP, currentQ);
-                int currentE = calcE(currentP, currentQ);
+                int currentN = RSAService.calcN(currentP, currentQ);
+                int currentE = RSAService.calcE(currentP, currentQ);
 
                 try {
                     int plaintext = Integer.parseInt(text);
                     if (plaintext < currentN) {
-                        outputMessageEncrypt.setText("" + encrypt(plaintext, currentE, currentN));
+                        outputMessageEncrypt.setText("" + RSAService.encrypt(plaintext, currentE, currentN));
                     } else {
                         outputMessageEncrypt.setText("Eingabe muss kleiner als N sein!");
                     }
@@ -62,6 +59,29 @@ public class Controller {
                 }
             } else {
                 outputMessageEncrypt.setText("");
+            }
+        });
+        decryptBtn.setOnAction(event -> {
+            String text = inputMessageDecrypt.getText();
+            if (text != null && !text.isEmpty()) {
+                int currentP = primes[(int) Math.round(sliderP.getValue())];
+                int currentQ = primes[(int) Math.round(sliderQ.getValue())];
+                int currentN = RSAService.calcN(currentP, currentQ);
+                int currentE = RSAService.calcE(currentP, currentQ);
+                int currentD = RSAService.calcD(currentP, currentQ, currentE);
+
+                try {
+                    int ciphertext = Integer.parseInt(text);
+                    if (ciphertext < currentN) {
+                        outputMessageDecrypt.setText("" + RSAService.decrypt(ciphertext, currentD, currentN));
+                    } else {
+                        outputMessageDecrypt.setText("Eingabe muss kleiner als N sein!");
+                    }
+                } catch (NumberFormatException ex) {
+                    outputMessageDecrypt.setText("");
+                }
+            } else {
+                outputMessageDecrypt.setText("");
             }
         });
     }
@@ -74,10 +94,8 @@ public class Controller {
      */
     @FXML void onSliderChanged(int[] primes, Slider movedSlider, Slider otherSlider) {
         if (isUpdating) return;
-
         int movedIdx = (int) Math.round(movedSlider.getValue());
         int otherIdx = (int) Math.round(otherSlider.getValue());
-
         if (movedIdx == otherIdx) {
             isUpdating = true;
             movedIdx = (movedIdx + 1 < primes.length) ? movedIdx + 1 : movedIdx - 1;
@@ -85,22 +103,12 @@ public class Controller {
             isUpdating = false;
         }
 
-        mapPrimesOnSlider(primes, sliderP, labelP);
-        mapPrimesOnSlider(primes, sliderQ, labelQ);
 
-        int p = primes[(int) Math.round(sliderP.getValue())];
-        int q = primes[(int) Math.round(sliderQ.getValue())];
-        int e = calcE(p, q);
-
-        labelNSettings.setText("N = "+ calcN(p, q));
-        labelESettings.setText("e = "+ calcE(p, q));
-        labelDSettings.setText("d = "+ calcD(p, q, calcE(p, q)));
+        updateSliders(primes, sliderP, labelP);
+        updateSliders(primes, sliderQ, labelQ);
+        updateLabels(primes[(int) Math.round(sliderP.getValue())],primes[(int) Math.round(sliderQ.getValue())]);
     }
 
-    @FXML private int encrypt(int plaintext, int e, int N) {
-
-        return (int) (Math.pow(plaintext,e) % N);
-    }
 
     /**
      * Mappt die Primzahlen des Arrays int[] primes auf den Slider und zeigt den aktuellen Wert des Sliders als Label an.
@@ -108,13 +116,8 @@ public class Controller {
      * @param slider zu mappender Slider
      * @param label Anzeigelabel
      */
-    @FXML private void mapPrimesOnSlider(int[] primes, Slider slider, Label label) {
-        slider.setMin(0);
-        slider.setMax(primes.length -1);
-        slider.setMinorTickCount(0);
-        slider.setBlockIncrement(1);
-        slider.setShowTickLabels(false);
-        slider.setShowTickMarks(false);
+    @FXML private void updateSliders(int[] primes, Slider slider, Label label) {
+        setupSlider(slider, primes);
 
         int index = (int) Math.round(slider.getValue());
         int prime = primes[index];
@@ -126,89 +129,18 @@ public class Controller {
         }
     }
 
-    /** Errechnet den Wert N aus q und p. Zeigt N dann als Label an.
-     * @param p Primzahl
-     * @param q Primzahl
-     * @return N, Produkt aus q und p
-     */
-    @FXML private int calcN(int p, int q) {
-        return p*q;
+    @FXML private void setupSlider(Slider slider, int[] primes) {
+        slider.setMin(0);
+        slider.setMax(primes.length -1);
+        slider.setMinorTickCount(0);
+        slider.setBlockIncrement(1);
+        slider.setShowTickLabels(false);
+        slider.setShowTickMarks(false);
     }
 
-    /**
-     * Errechnet das kleinste e für das ggT(e, (p-1)*(q-1)) == 1 gilt; e also zu (q-1)*(p-1) teilerfremd ist.
-     * @param p Primzahl
-     * @param q Primzahl
-     * @return e
-     */
-    @FXML private int calcE(int p, int q) {
-        int phi = (p-1) * (q-1);
-        int e = 3;
-
-        while (ggT(e,phi) != 1) {
-            e += 2;
-        }
-        return e;
-    }
-
-    /**
-     * Berechnet den privaten Exponenten d für das RSA-Verfahren aus den Primzahlen p und q sowie e
-     * @param p Primzahl
-     * @param q Primzahl
-     * @param e kleinstes e für das ggT(e, (p-1)*(q-1)) == 1 gilt.
-     * @return d
-     */
-    @FXML private int calcD(int p, int q, int e) {
-        int phi = (p-1)*(q-1);
-        int k = 1;
-
-        while ((k*phi+1) % e != 0) {
-            k++;
-        }
-
-        return (k*phi+1)/e;
-    }
-
-    /** Siebt alle Primzahlen einer Zahlenreihe bis zum Parameter max heraus.
-     * @param max Maximaler Wert einer möglichen Primzahl
-     * @return Array aller Primzahlen bis max
-     */
-    static int[] primeGenerator(int max) {
-        boolean[] composite = new boolean[max + 1];
-        int count = 0;
-
-        for(int i = 2; i*i <= max; i++) {
-            if(!composite[i]) {
-                for(int j = i*i; j <= max; j += i) {
-                    composite[j] = true;
-                }
-            }
-        }
-
-        for (int i = 2; i <= max; i++) {
-            if (!composite[i]) { count++;}
-        }
-
-        int[] primes = new int[count];
-        for (int i = 2, k = 0; i <= max; i++) {
-            if (!composite[i]) primes[k++] = i;
-        }
-
-        return primes;
-    }
-
-    /**
-     * Errechnet den ggT der Integer a und b nach dem Euklidischen Algorithmus
-     * @param a natürliche Zahl
-     * @param b natürliche Zahl
-     * @return ggT von a und b
-     */
-    static int ggT(int a, int b) {
-        while (b != 0) {
-                int temp = b;
-                b = a % b;
-                a = temp;
-        }
-        return a;
+    @FXML private void updateLabels(int p, int q) {
+        labelNSettings.setText("N = "+ RSAService.calcN(p, q));
+        labelESettings.setText("e = "+ RSAService.calcE(p, q));
+        labelDSettings.setText("d = "+ RSAService.calcD(p, q, RSAService.calcE(p, q)));
     }
 }
