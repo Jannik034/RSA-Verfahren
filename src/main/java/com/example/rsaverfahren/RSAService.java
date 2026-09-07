@@ -1,10 +1,9 @@
 package com.example.rsaverfahren;
-
 import javafx.fxml.FXML;
-
 import java.math.BigInteger;
 
 public class RSAService {
+
     /**
      * Verschlüsselt den plaintext nach der Formel ciphertext = (plaintext^e) % N.
      * @param plaintext zu verschlüsselndes Wort (int)
