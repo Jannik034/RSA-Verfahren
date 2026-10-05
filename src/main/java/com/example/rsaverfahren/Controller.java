@@ -14,7 +14,7 @@ public class Controller {
     @FXML private Button encryptBtn, decryptBtn;
     @FXML private Button randomPrimeBtn;
     private boolean isUpdating = false;
-    private static final Random randomIndexGen = new Random();
+    private static final Random RANDOM_INDEX_GEN = new Random();
 
     /**
      * Setzt verschiedene Werte und Einstellungen initial fest.
@@ -25,6 +25,7 @@ public class Controller {
         int[] primes = RSAService.primeGenerator(maxPrimePossible);
 
         //Textformatter: Sorgt dafür, dass man nur Zahlen im encrypt-Textfeld eingeben kann.
+        //matches("\\d*") überprüft ob eine beliebige Anzahl, auch Null mal, (*) der Ziffer (\d) eingegeben wird. Doppelter Backslash für Java-String.
         inputMessageEncrypt.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d*") ? change : null));
         inputMessageDecrypt.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d*") ? change : null));
 
@@ -50,8 +51,8 @@ public class Controller {
 
         //Dieser Abschnitt kümmert sich um die zufällige Zuweisung eines Index für die Slider und somit einer zufälligen Primzahl mit der gerechnet wird.
         randomPrimeBtn.setOnAction(_ -> {
-            sliderP.setValue(randomIndexGen.nextInt(primes.length));
-            sliderQ.setValue(randomIndexGen.nextInt(primes.length));
+            sliderP.setValue(RANDOM_INDEX_GEN.nextInt(primes.length));
+            sliderQ.setValue(RANDOM_INDEX_GEN.nextInt(primes.length));
         });
 
         handleCryption(primes);
@@ -61,7 +62,7 @@ public class Controller {
      * Fügt den encrypt und decrypt Buttons einen EventHandler hinzu, der bei Betätigung des Knopfes den Text ver und entschlüsselt. Alle NumberFormatExeptions werden dabei durch den Try-Catch Block entsprechend behandelt.
      * @param primes Primzahlarray
      */
-    @FXML private void handleCryption(int[] primes) {
+    private void handleCryption(int[] primes) {
         encryptBtn.setOnAction(_ -> {
 
             String text = inputMessageEncrypt.getText();
@@ -128,7 +129,7 @@ public class Controller {
      * @param movedSlider der bewegte Slider
      * @param otherSlider der jeweils andere Slider
      */
-    @FXML void onSliderChanged(int[] primes, Slider movedSlider, Slider otherSlider) {
+    private void onSliderChanged(int[] primes, Slider movedSlider, Slider otherSlider) {
         if (isUpdating) return;
 
         int movedIdx = (int) Math.round(movedSlider.getValue());
@@ -153,7 +154,7 @@ public class Controller {
      * @param slider zu mappender Slider
      * @param label Anzeigelabel
      */
-    @FXML private void updateSliders(int[] primes, Slider slider, Label label) {
+    private void updateSliders(int[] primes, Slider slider, Label label) {
         setupSlider(slider, primes.length);
 
         //Errechnung der entsprechender Primzahl aus dem primes-Array mit passendem Index zum Slider.
@@ -172,7 +173,7 @@ public class Controller {
      * @param slider einzustellender Slider
      * @param primesLength Länge des Primzahlarrays
      */
-    @FXML private void setupSlider(Slider slider, int primesLength) {
+    private void setupSlider(Slider slider, int primesLength) {
         slider.setMin(0);
         slider.setMax(primesLength -1);
         slider.setMinorTickCount(0);
@@ -186,7 +187,7 @@ public class Controller {
      * @param p Primzahl
      * @param q Primzahl
      */
-    @FXML private void updateLabels(int p, int q) {
+    private void updateLabels(int p, int q) {
         labelNSettings.setText("N = "+ RSAService.calcN(p, q));
         labelESettings.setText("e = "+ RSAService.calcE(p, q));
         labelDSettings.setText("d = "+ RSAService.calcD(p, q, RSAService.calcE(p, q)));

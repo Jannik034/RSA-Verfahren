@@ -1,5 +1,4 @@
 package com.example.rsaverfahren;
-import javafx.fxml.FXML;
 import java.math.BigInteger;
 
 public class RSAService {
@@ -19,7 +18,7 @@ public class RSAService {
         BigInteger BIN = BigInteger.valueOf(N);
 
         /*
-        1. Berechnet plaintext^e % N der BigInteger Objekte mit der Methode modPow.
+        1. Berechnet plaintext^e % N der BigInteger Objekte mit der Methode modPow (optimierte Funktion).
         2. Wandelt das BigInteger Ergebnis in int zurück
         3. Gibt den ciphertext als int aus.
          */
