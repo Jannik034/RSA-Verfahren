@@ -1,6 +1,7 @@
 package com.example.rsaverfahren;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import java.util.Random;
 
 public class Controller {
 
@@ -11,12 +12,15 @@ public class Controller {
     @FXML private Label labelESettings, labelEEncrypt;
     @FXML private TextField inputMessageEncrypt, outputMessageEncrypt, inputMessageDecrypt, outputMessageDecrypt;
     @FXML private Button encryptBtn, decryptBtn;
+    @FXML private Button randomPrimeBtn;
     private boolean isUpdating = false;
+    private static final Random randomIndexGen = new Random();
 
     /**
      * Setzt verschiedene Werte und Einstellungen initial fest.
      */
     @FXML private void initialize() {
+
         int maxPrimePossible = 1000;
         int[] primes = RSAService.primeGenerator(maxPrimePossible);
 
@@ -41,8 +45,14 @@ public class Controller {
         labelNEncrypt.textProperty().bind(labelNSettings.textProperty());
 
         //Hinzufügen der Listener, die bei Bewegung des Sliders die Funktion onSliderChanged() aufrufen.
-        sliderP.valueProperty().addListener((obs, o, n) -> onSliderChanged(primes, sliderP, sliderQ));
-        sliderQ.valueProperty().addListener((obs, o, n) -> onSliderChanged(primes, sliderQ, sliderP));
+        sliderP.valueProperty().addListener((_, _, _) -> onSliderChanged(primes, sliderP, sliderQ));
+        sliderQ.valueProperty().addListener((_, _, _) -> onSliderChanged(primes, sliderQ, sliderP));
+
+        //Dieser Abschnitt kümmert sich um die zufällige Zuweisung eines Index für die Slider und somit einer zufälligen Primzahl mit der gerechnet wird.
+        randomPrimeBtn.setOnAction(_ -> {
+            sliderP.setValue(randomIndexGen.nextInt(primes.length));
+            sliderQ.setValue(randomIndexGen.nextInt(primes.length));
+        });
 
         handleCryption(primes);
     }
@@ -52,7 +62,7 @@ public class Controller {
      * @param primes Primzahlarray
      */
     @FXML private void handleCryption(int[] primes) {
-        encryptBtn.setOnAction(event -> {
+        encryptBtn.setOnAction(_ -> {
 
             String text = inputMessageEncrypt.getText();
 
@@ -80,7 +90,7 @@ public class Controller {
                 outputMessageEncrypt.setText("");
             }
         });
-        decryptBtn.setOnAction(event -> {
+        decryptBtn.setOnAction(_ -> {
 
             String text = inputMessageDecrypt.getText();
 
